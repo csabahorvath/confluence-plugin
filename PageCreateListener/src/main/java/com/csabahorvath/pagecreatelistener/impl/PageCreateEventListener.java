@@ -56,49 +56,49 @@ public class PageCreateEventListener implements InitializingBean, DisposableBean
     @EventListener
     public void onPageCreateEvent(PageCreateEvent event) {
         try {
-            LOGGER.warn("Adding user group labels to page...");
+            LOGGER.info("Adding user group labels to page...");
 
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
             groupManager.getGroups(confluenceUser)
-                    .forEach(group -> addLabelToPageByGroup(event.getPage(), group));
+                    .forEach(group -> updateLabelsOfPageByGroup(event.getPage(), group));
 
-            LOGGER.warn("Adding user group labels to page finished!");
+            LOGGER.info("Adding user group labels to page finished!");
         } catch (EntityException ex) {
             LOGGER.error("Error during adding labels to page!", ex);
         }
     }
 
 
-    /*@EventListener
+    @EventListener
     public void onPageUpdateEvent(PageUpdateEvent event) {
         try {
-            LOGGER.warn("Checking user group labels of page...");
+            LOGGER.info("Checking user group labels of page...");
 
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
             groupManager.getGroups(confluenceUser)
-                    .forEach(group -> addLabelToPageByGroup(event.getPage(), group));
+                    .forEach(group -> updateLabelsOfPageByGroup(event.getPage(), group));
 
-            LOGGER.warn("Checking user group labels of page finished!");
+            LOGGER.info("Checking user group labels of page finished!");
         } catch (EntityException ex) {
             LOGGER.error("Error during checking labels of page!", ex);
         }
-    }*/
+    }
 
-    private void addLabelToPageByGroup(Page page, Group group) {
-        String newLabelName = getLabelNameByGroup(group);
-        if (newLabelName.isEmpty()) {
+    private void updateLabelsOfPageByGroup(Page page, Group group) {
+        String labelName = getLabelNameByGroup(group);
+        if (labelName.isEmpty()) {
             return;
         }
 
-        if (!isNewLabel(newLabelName, page)) {
+        if (!isNewLabel(labelName, page)) {
             return;
         }
 
-        Label label = LabelUtil.addLabel(newLabelName, labelManager, page);
+        Label label = LabelUtil.addLabel(labelName, labelManager, page);
         if (label != null) {
-            LOGGER.warn("Label added: " + label.getName());
+            LOGGER.info("Label added: " + label.getName());
         } else {
-            LOGGER.warn("Could not add label! Name: " + newLabelName);
+            LOGGER.warn("Could not add label! Name: " + labelName);
         }
     }
 
